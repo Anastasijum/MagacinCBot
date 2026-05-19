@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kulturni centar Magacin — Asistent</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: #e8f5ee;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.chat-box {
+  background: #f4fbf7;
+  border-radius: 20px;
+  box-shadow: 0 4px 32px rgba(15, 80, 45, 0.13);
+  width: 100%;
+  max-width: 620px;
+  height: min(720px, 90dvh);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  padding: 18px 22px;
+  background: linear-gradient(135deg, #1a6b3c, #2ea05a);
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.avatar {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.15);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(255,255,255,0.25);
+}
+
+.header-info h2 { font-size: 15px; font-weight: 600; color: #fff; }
+.header-info p  { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 2px; }
+
+.online {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #c6f2d8;
+  font-weight: 500;
+}
+
+.dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #6ee8a0;
+  box-shadow: 0 0 6px #6ee8a0;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #edf7f2;
+}
+
+.messages::-webkit-scrollbar { width: 4px; }
+.messages::-webkit-scrollbar-thumb { background: #a8d8bc; border-radius: 4px; }
+
+.msg {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 80%;
+  animation: pop 0.2s ease;
+}
+
+.msg.user { align-self: flex-end; align-items: flex-end; }
+.msg.bot  { align-self: flex-start; }
+
+.bubble {
+  padding: 11px 15px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.bot .bubble {
+  background: #f4fbf7;
+  color: #0f3320;
+  border: 1px solid #b8dfc8;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 4px rgba(15,80,45,0.07);
+}
+
+.user .bubble {
+  background: linear-gradient(135deg, #1a6b3c, #2ea05a);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.time { font-size: 10.5px; color: #7abd9a; padding: 0 4px; }
+.msg.bot .time { color: #9ab5a5; }
+
+.typing .bubble { padding: 13px 16px; }
+.dots { display: flex; gap: 4px; }
+.dots span {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #7abd9a;
+  animation: bounce 1.1s infinite;
+}
+.dots span:nth-child(2) { animation-delay: 0.18s; }
+.dots span:nth-child(3) { animation-delay: 0.36s; }
+
+.suggestions {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  padding: 10px 20px 14px;
+  background: #edf7f2;
+  border-top: 1px solid #c8e8d5;
+}
+
+.chip {
+  padding: 6px 13px;
+  border-radius: 20px;
+  border: 1.5px solid #9dd4b4;
+  background: #f4fbf7;
+  font-family: 'Sora', sans-serif;
+  font-size: 12px;
+  color: #1a6b3c;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.chip:hover {
+  background: #1a6b3c;
+  color: #fff;
+  border-color: #1a6b3c;
+}
+
+.input-row {
+  padding: 14px 16px;
+  border-top: 1px solid #b8dfc8;
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  background: #f4fbf7;
+}
+
+textarea {
+  flex: 1;
+  border: 1.5px solid #9dd4b4;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-family: 'Sora', sans-serif;
+  font-size: 13.5px;
+  resize: none;
+  outline: none;
+  max-height: 120px;
+  min-height: 42px;
+  line-height: 1.5;
+  color: #0f3320;
+  transition: border-color 0.15s;
+  background: #edf7f2;
+}
+
+textarea:focus { border-color: #2ea05a; background: #f4fbf7; }
+textarea::placeholder { color: #7abd9a; }
+
+button.send {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #1a6b3c, #2ea05a);
+  color: #fff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: opacity 0.15s, transform 0.15s;
+  box-shadow: 0 2px 10px rgba(15,80,45,0.3);
+}
+
+button.send:hover:not(:disabled) { opacity: 0.88; transform: scale(1.05); }
+button.send:disabled { opacity: 0.35; cursor: default; box-shadow: none; }
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-5px); }
+}
+</style>
+</head>
+<body>
+
+<div class="chat-box">
+  <div class="header">
+    <div class="avatar">
+      <img src="/static/mkm.jpeg" alt="Logo" style="width:100%; height:100%; object-fit:contain; border-radius:10px;">
+    </div>
+    <div class="header-info">
+      <h2>Kulturni centar Magacin</h2>
+      <p>Virtuelni asistent</p>
+    </div>
+    <div class="online"><div class="dot"></div> Online</div>
+  </div>
+
+  <div class="messages" id="messages">
+    <div class="msg bot">
+      <div class="bubble">👋 Zdravo! Ja sam virtuelni asistent Kulturnog centra Magacin. Kako mogu da Vam pomognem?</div>
+      <div class="time">upravo</div>
+    </div>
+  </div>
+
+  <div class="suggestions" id="suggestions">
+    <button class="chip" onclick="sendQuick('Kako mogu da kontaktiram kulturni centar?')">📞 Kontakt</button>
+    <button class="chip" onclick="sendQuick('Kojim prostorijama raspolaže kulturni centar?')">🏠 Prostorije</button>
+    <button class="chip" onclick="sendQuick('Koje je radno vreme kulturnog centra?')">🕐 Radno vreme</button>
+    <button class="chip" onclick="sendQuick('Koji javni program je dostupan u kulturnom centru Magacin?')">🎪 Javni program</button>
+  </div>
+
+  <div class="input-row">
+    <textarea id="input" placeholder="Postavite pitanje..." rows="1"
+      onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="send" id="sendBtn" onclick="sendMessage()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+let sessionId = null;
+let busy = false;
+
+fetch('/new-session', { method: 'POST' })
+  .then(r => r.json()).then(d => sessionId = d.session_id)
+  .catch(() => sessionId = 'x' + Math.random().toString(36).slice(2));
+
+function now() {
+  return new Date().toLocaleTimeString('sr', { hour: '2-digit', minute: '2-digit' });
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function sendQuick(text) {
+  document.getElementById('input').value = text;
+  sendMessage();
+}
+
+function addMsg(role, text) {
+  const wrap = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = `<div class="bubble">${text.replace(/\n/g,'<br>')}</div><div class="time">${now()}</div>`;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function showTyping() {
+  const wrap = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg bot typing';
+  div.id = 'typing';
+  div.innerHTML = `<div class="bubble"><div class="dots"><span></span><span></span><span></span></div></div>`;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing');
+  if (el) el.remove();
+}
+
+async function sendMessage() {
+  if (busy) return;
+  const input = document.getElementById('input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const chips = document.getElementById('suggestions');
+  if (chips) chips.style.display = 'none';
+
+  input.value = '';
+  input.style.height = 'auto';
+  busy = true;
+  document.getElementById('sendBtn').disabled = true;
+
+  addMsg('user', text);
+  showTyping();
+
+  try {
+    const r = await fetch('/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, session_id: sessionId })
+    });
+    const d = await r.json();
+    removeTyping();
+    addMsg('bot', d.error ? '❌ ' + d.error : d.response);
+  } catch {
+    removeTyping();
+    addMsg('bot', '⚠️ Server nije dostupan. Pokrenite app.py.');
+  }
+
+  busy = false;
+  document.getElementById('sendBtn').disabled = false;
+  input.focus();
+}
+</script>
+</body>
+</html>
